@@ -11,9 +11,9 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'MemoController@index')->name('home');
+
+Auth::routes();
 
 Route::get('memos', 'MemoController@index')->name('memos.index');
 Route::get('memos/new', 'MemoController@new')->name('memos.new');
