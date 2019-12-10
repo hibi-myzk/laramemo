@@ -11,13 +11,15 @@
 |
 */
 
-Route::get('/', 'MemoController@index')->name('home');
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/', 'MemoController@index')->name('home');
+
+    Route::get('memos', 'MemoController@index')->name('memos.index');
+    Route::get('memos/new', 'MemoController@new')->name('memos.new');
+    Route::post('memos', 'MemoController@create')->name('memos.create');
+    Route::get('memos/{memo}/edit', 'MemoController@edit')->name('memos.edit');
+    Route::get('memos/{memo}', 'MemoController@show')->name('memos.show');
+    Route::patch('memos/{memo}', 'MemoController@update')->name('memos.update');    
+});
 
 Auth::routes();
-
-Route::get('memos', 'MemoController@index')->name('memos.index');
-Route::get('memos/new', 'MemoController@new')->name('memos.new');
-Route::post('memos', 'MemoController@create')->name('memos.create');
-Route::get('memos/{memo}/edit', 'MemoController@edit')->name('memos.edit');
-Route::get('memos/{memo}', 'MemoController@show')->name('memos.show');
-Route::patch('memos/{memo}', 'MemoController@update')->name('memos.update');
