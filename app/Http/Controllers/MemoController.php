@@ -6,12 +6,13 @@ use App\Memo;
 use App\Http\Requests\CreateMemo;
 use App\Http\Requests\UpdateMemo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MemoController extends Controller
 {
     public function index()
     {
-        $memos = Memo::all();
+        $memos = Auth::user()->memos()->get();
 
         return view('memos.index', [
             'memos' => $memos,
@@ -34,7 +35,8 @@ class MemoController extends Controller
     {
         $memo = new Memo();
         $memo->fill($request->except('_token'));
-        $memo->save();
+        
+        Auth::user()->memos()->save($memo);
 
         return redirect()->route('memos.index');
     }
