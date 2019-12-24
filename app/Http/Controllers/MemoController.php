@@ -7,6 +7,7 @@ use App\Http\Requests\CreateMemo;
 use App\Http\Requests\UpdateMemo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App;
 
 class MemoController extends Controller
 {
@@ -17,6 +18,22 @@ class MemoController extends Controller
         return view('memos.index', [
             'memos' => $memos,
         ]);
+    }
+
+    public function file()
+    {
+        $s3 = App::make('aws')->createClient('s3');
+        $cmd = $s3->getCommand('GetObject', [
+            'Bucket' => 'laramemo',
+            'Key'    => 'tests/mac_us_keyboard.png',
+        ]);
+        $request = $s3->createPresignedRequest($cmd, '+20 minutes');
+
+        $presignedUrl = (string) $request->getUri();
+        
+        return response()->streamDownload(function() use ($presignedUrl) {
+            echo file_get_contents($presignedUrl);
+        }, 'mac_us_keyboard.png');
     }
 
     public function show(Memo $memo)
@@ -56,5 +73,10 @@ class MemoController extends Controller
         return redirect()->route('memos.show', [
             'memo' => $memo,
         ]);
+    }
+
+    public function fileUploaded(Request $request, Memo $memo)
+    {
+        return 'OK';
     }
 }

@@ -1,0 +1,10 @@
+body {
+  padding: 20px;
+}
+
+#s3dropzone {
+  border: 1px dashed gray;
+  width: 400px;
+  height: 300px;
+}
+
