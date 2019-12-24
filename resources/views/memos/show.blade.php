@@ -12,7 +12,7 @@
     </div>
     <div>
         ファイル:
-        <ul>
+        <ul id="files">
             @foreach ($files as $file)
                 <li>
                     <a href="{{ route('memos.file', [ 'memo' => $memo, 'file_key' => $file->key ]) }}">{{ $file->name }}</a>
@@ -142,9 +142,17 @@
                             if ( !response.success )
                                 console.log(response.message);
 
-                            delete response.success;
-                            
                             console.log('success');
+
+                            $li = $('<li>').append(
+                                $('<a>')
+                                    .attr('href', response.file.url)
+                                    .text(response.file.name)
+                            )
+                            .append('（' + response.file.created_at + '）')
+                            .hide();
+                            $('#files').prepend($li);
+                            $li.show('normal');
                         },
                         error: function(response) {
                             if (response.responseText) {

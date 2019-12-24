@@ -97,6 +97,11 @@ class MemoController extends Controller
         return [
             'success' => true,
             'message' => 'OK',
+            'file' => [
+                'name' => $file->name,
+                'url' => route('memos.file', [ 'memo' => $memo, 'file_key' => $file->key ]),
+                'created_at' => $file->getFormattedCreatedAtAttribute(),
+            ],
         ];
     }
 }
