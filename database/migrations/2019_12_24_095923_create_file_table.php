@@ -16,7 +16,7 @@ class CreateFileTable extends Migration
         Schema::create('files', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('memo_id')->unsigned();
-            $table->foreign('memo_id')->references('id')->on('files');
+            $table->foreign('memo_id')->references('id')->on('memos');
             $table->string('key', 255);
             $table->string('name', 255);
             $table->string('path', 255);
