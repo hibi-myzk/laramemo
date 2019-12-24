@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Memo;
+use App\File;
 use App\Http\Requests\CreateMemo;
 use App\Http\Requests\UpdateMemo;
 use Illuminate\Http\Request;
@@ -20,12 +21,21 @@ class MemoController extends Controller
         ]);
     }
 
-    public function file()
+    public function file(Request $request, Memo $memo)
     {
+        $file = File::where('key', $request->file_key)
+                    ->where('memo_id', $memo->id)
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+        
+        if (is_null($file)) {
+            abort(404);
+        }
+
         $s3 = App::make('aws')->createClient('s3');
         $cmd = $s3->getCommand('GetObject', [
             'Bucket' => 'laramemo',
-            'Key'    => 'tests/mac_us_keyboard.png',
+            'Key'    => $file->path,
         ]);
         $request = $s3->createPresignedRequest($cmd, '+20 minutes');
 
@@ -33,13 +43,14 @@ class MemoController extends Controller
         
         return response()->streamDownload(function() use ($presignedUrl) {
             echo file_get_contents($presignedUrl);
-        }, 'mac_us_keyboard.png');
+        }, $file->name);
     }
 
     public function show(Memo $memo)
     {
         return view('memos.show', [
             'memo' => $memo,
+            'files' => $memo->files()->get(),
         ]);
     }
 
@@ -77,6 +88,15 @@ class MemoController extends Controller
 
     public function fileUploaded(Request $request, Memo $memo)
     {
-        return 'OK';
+        $file = new File();
+        $file->key = $request->file_key;
+        $file->name = $request->name;
+        $file->path = $request->s3;
+        $memo->files()->save($file);
+
+        return [
+            'success' => true,
+            'message' => 'OK',
+        ];
     }
 }

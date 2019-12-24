@@ -15,10 +15,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/', 'MemoController@index')->name('home');
 
     Route::get('memos', 'MemoController@index')->name('memos.index');
-    Route::get('memos/file', 'MemoController@file')->name('memos.file');
     Route::get('memos/new', 'MemoController@new')->name('memos.new');
     Route::post('memos', 'MemoController@create')->name('memos.create');
     Route::get('memos/{memo}/edit', 'MemoController@edit')->name('memos.edit');
+    Route::get('memos/{memo}/file/{file_key}', 'MemoController@file')->name('memos.file');
     Route::get('memos/{memo}', 'MemoController@show')->name('memos.show');
     Route::patch('memos/{memo}', 'MemoController@update')->name('memos.update');    
     Route::post('memos/{memo}/file_uploaded', 'MemoController@fileUploaded')->name('memos.file_uploaded');
@@ -40,7 +40,8 @@ Route::post('/ajax/request-s3-file-signature', function() {
  
     // Path in our S3 bucket to upload to
     $filepath = 'tests/' . $memoId . '/';
-    $filename = uniqid() . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+    $filekey = uniqid();
+    $filename = $filekey . '.' . pathinfo($filename, PATHINFO_EXTENSION);
  
     // Set up our policy generator being careful to add conditions that match
     // what our HTML form will be submitting to S3
@@ -58,5 +59,6 @@ Route::post('/ajax/request-s3-file-signature', function() {
         'key' => $filepath . $filename,
         'policy' => $policy->getPolicy(),
         'signature' => $policy->getSignedPolicy(),
+        'file_key' => $filekey,
     ]);
 })->name('request-s3-file-signature');

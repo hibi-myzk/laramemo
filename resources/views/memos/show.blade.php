@@ -11,7 +11,15 @@
         updated: {{ $memo->formatted_updated_at }}
     </div>
     <div>
-        <a href="{{ route('memos.file') }}">ファイルをダウンロード</a>
+        ファイル:
+        <ul>
+            @foreach ($files as $file)
+                <li>
+                    <a href="{{ route('memos.file', [ 'memo' => $memo, 'file_key' => $file->key ]) }}">{{ $file->name }}</a>
+                    （{{ $file->formatted_created_at }}）
+                </li>
+            @endforeach
+        </ul>
     </div>
     
     <p><a href="{{ route('memos.edit', [ 'memo' => $memo ]) }}">編集</a></p>
@@ -77,6 +85,8 @@
                             file.custom_status = 'ready';
                             file.postData = response;
                             file.s3 = response.key;
+                            file.file_key = response.file_key;
+                            delete response.file_key;
                             $(file.previewTemplate).addClass('uploading');
                             done();
                         },
@@ -113,6 +123,7 @@
                 * The file has been uploaded successfully.
                 */
                 success: function(file) {
+                    console.log(file.name);
                     console.log(file.s3);
                     $.ajax({
                         url: "{{ route('memos.file_uploaded', [ 'memo' => $memo ]) }}",
@@ -121,13 +132,15 @@
                         },
                         data: {
                             memoId: {{ $memo->id }},
+                            name: file.name,
                             s3: file.s3,
+                            file_key: file.file_key,
                         },
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
                             if ( !response.success )
-                                done(response.message);
+                                console.log(response.message);
 
                             delete response.success;
                             

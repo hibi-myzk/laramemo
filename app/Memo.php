@@ -30,4 +30,9 @@ class Memo extends Model
         return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['updated_at'])
                 ->format('Y/m/d H:i:s');
     }
+
+    public function files()
+    {
+        return $this->hasMany('App\File');
+    }
 }
